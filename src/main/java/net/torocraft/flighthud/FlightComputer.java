@@ -81,8 +81,8 @@ public class FlightComputer {
     float rollSmoothing = FlightHud.CONFIG_SETTINGS.rollSmoothing;
     Vec3 facing = client.player.getLookAngle();
     Vec3 velocity = client.player.getDeltaMovement();
-    double horizontalFacing2 = facing.horizontalLengthSqr();
-    double horizontalSpeed2 = velocity.horizontalLengthSqr();
+    double horizontalFacing2 = facing.horizontalDistanceSqr();
+    double horizontalSpeed2 = velocity.horizontalDistanceSqr();
 
     float rollAngle = 0.0f;
 
