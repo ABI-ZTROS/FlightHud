@@ -1,0 +1,93 @@
+package net.torocraft.flighthud.components;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.torocraft.flighthud.Dimensions;
+import net.torocraft.flighthud.FlightComputer;
+import net.torocraft.flighthud.HudComponent;
+
+public class HeadingIndicator extends HudComponent {
+
+  private final Dimensions dim;
+  private final FlightComputer computer;
+
+  public HeadingIndicator(FlightComputer computer, Dimensions dim) {
+    this.computer = computer;
+    this.dim = dim;
+  }
+
+  @Override
+  public void render(GuiGraphicsExtractor g, float partial, Minecraft mc) {
+    float left = dim.lFrame;
+    float right = dim.rFrame;
+    float top = dim.tFrame - 10;
+
+    float yText = top - 7;
+    float northOffset = computer.heading * dim.degreesPerPixel;
+    float xNorth = dim.xMid - northOffset;
+
+    if (CONFIG.heading_showReadout) {
+      drawFont(mc, g, String.format("%03d", i(wrapHeading(computer.heading))), dim.xMid - 8, yText);
+      drawBox(g, dim.xMid - 15, yText - 1.5f, 30, 10);
+    }
+
+    if (CONFIG.heading_showScale) {
+      drawPointer(g, dim.xMid, top + 10, 0);
+      for (int i = -540; i < 540; i = i + 5) {
+        float x = (i * dim.degreesPerPixel) + xNorth;
+        if (x < left || x > right)
+          continue;
+
+        if (i % 15 == 0) {
+          if (i % 90 == 0) {
+            drawFont(mc, g, headingToDirection(i), x - 2, yText + 10);
+            drawFont(mc, g, headingToAxis(i), x - 8, yText + 20);
+          } else {
+            drawVerticalLine(g, x, top + 3, top + 10);
+          }
+
+          if (!CONFIG.heading_showReadout || x <= dim.xMid - 26 || x >= dim.xMid + 26) {
+            drawFont(mc, g, String.format("%03d", i(wrapHeading(i))), x - 8, yText);
+          }
+        } else {
+          drawVerticalLine(g, x, top + 6, top + 10);
+        }
+      }
+    }
+  }
+
+  private String headingToDirection(int degrees) {
+    degrees = i(wrapHeading(degrees));
+    switch (degrees) {
+      case 0:
+      case 360:
+        return "N";
+      case 90:
+        return "E";
+      case 180:
+        return "S";
+      case 270:
+        return "W";
+      default:
+        return "";
+    }
+  }
+
+  private String headingToAxis(int degrees) {
+    degrees = i(wrapHeading(degrees));
+    switch (degrees) {
+      case 0:
+      case 360:
+        return "-Z";
+      case 90:
+        return "+X";
+      case 180:
+        return "+Z";
+      case 270:
+        return "-X";
+      default:
+        return "";
+    }
+  }
+
+}
